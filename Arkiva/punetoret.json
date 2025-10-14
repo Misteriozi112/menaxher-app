@@ -1,0 +1,50 @@
+[
+  {
+    "id": "e45f5a4c-2d00-4517-9db7-62a7220fecc3",
+    "emri": "Fitim Grulaj",
+    "pushimTotali": 20,
+    "rroga": 0,
+    "dataPageses": null,
+    "oreShtese": 0,
+    "pagesaOreShtese": 0,
+    "mungesa": 0,
+    "pushime": [],
+    "pushimPerdorura": 0
+  },
+  {
+    "id": "4aad5811-84dd-421b-9c98-ca567eec7852",
+    "emri": "Fitim Grulaj",
+    "pushimTotali": 20,
+    "rroga": 550,
+    "dataPageses": "2025-09-01",
+    "oreShtese": 0,
+    "pagesaOreShtese": 0,
+    "mungesa": 0,
+    "pushime": [],
+    "pushimPerdorura": 0
+  },
+  {
+    "id": "3a8bed14-f53c-466e-832c-d25acc8387b5",
+    "emri": "Besnik Gashi",
+    "pushimTotali": 20,
+    "rroga": 0,
+    "dataPageses": null,
+    "oreShtese": 0,
+    "pagesaOreShtese": 0,
+    "mungesa": 0,
+    "pushime": [],
+    "pushimPerdorura": 0
+  },
+  {
+    "id": "52881bc6-f881-4e97-8277-d2e812042ed1",
+    "emri": "Besnik Gashi",
+    "pushimTotali": 20,
+    "rroga": 550,
+    "dataPageses": "2025-09-01",
+    "oreShtese": 0,
+    "pagesaOreShtese": 0,
+    "mungesa": 0,
+    "pushime": [],
+    "pushimPerdorura": 0
+  }
+]
