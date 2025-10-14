@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="sq" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paneli Kryesor</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Theme Loader Script (Prevents FOUC) -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            sky: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e' },
+          },
+          boxShadow: {
+            soft: '0 4px 12px rgba(0,0,0,0.05)',
+            'soft-dark': '0 4px 12px rgba(0,0,0,0.1)'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- PDF & Excel Export Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- Chart.js for Reports -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FullCalendar for Calendar -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+  
+  <!-- jsPDF Font for Albanian Characters -->
+  <script>
+    // This script adds the "LiberationSans" font to jsPDF, which supports Albanian characters like 'ë' and 'ç'.
+    (function (jsPDFAPI) {
+      'use strict';
+      if (!jsPDFAPI) { return; } // Don't run if jsPDF is not loaded
+      jsPDFAPI.addFileToVFS('LiberationSans-Regular.ttf', 'AAEAAAASAQAABAAgR0RFRgARAAhLAAAIVgAATjAAR1BPUwARACNcAAAOgAAAJrhHU1VCABgACDgAAADwAAAACE9TLzIBpAY/AAABPAAAAGhjbWFwABQAKAAAAXQAAABvZ2FzcAAQAAgAAAA+AAAAFGdseWYAE3aBAAACYAAABaBoZWFkApj6lQAAADcAAAA2aGhlYQFoA8QAAAA8AAAANGhtdHgE7wFAAAABHAAAA5Jsb2NhAEoBvAAAAkAAAAIwbWF4cABOAVUAAAA+AAAARm5hbWUAEhEbAAACUAAAAnJwb3N0AAEAAAQAAADMAAAACWFhbGMAAQAAAAEAAAABBgAAAAEAAQCgAAACAAoAogABACAAKwCrAAAEAAQAAAACAFgABAAAAAAABAAAAAQAAAAAAAABAAAAAQAAACAAAAAgAAAAIAAAADAAAAAwAAABQAAgAAAAAACgA0AAQAAQAAAAQAAAAXAAQAAAAAAAkAAMAAAAAAFAAEAEAAAAAAAEAABwEAAAAAAACAAkAAAAAAAwAIAAEAAAAAAAEAAAAAAEAAAAABQALAAEAAAAAAAIADgBGAAEAAAAAAAMAIAAHAAEAAAAAAAQADgB9AAEAAAAAAAUACwClAAEAAAAAAAYADgDIAAEAAAAAAAkAAMwAAAEAAAAAAAEABwAAAAEAAAAAAAIABwAAAAEAAAAAAAMABwAAAAEAAAAAAAUABwAAAAEAAAAAAAYABwAAAAEAAAAAAAEAAAAAABwALAEAAAUAFAAUCgACAAAABgAEAAAABQBcALkABQAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAQAAAAEAAgAAAAEACAABAAMAAAABAAUAAQAEAAAAAQAGAAEABwAAAAEACgABAAoAAAABAAAAAAEABQAIAAAAAgAQABQABAADAAIAQABCAEMAQQAFAAgACQAFAAYACAAJAAgAEAAIAAQACgAIAAsABwAMAAQABgAEAAkAJAAmACgAKQAqACsALAAtAC4ALwAwADEAMgAzADQANQA2ADcAOAA5ADoAOwA8AD0APgA/AEAAQQBCAEMARABFAEYARwBIAEkASgBLAEwATQBOAE8AUABRAFIAUwBUAFUAVgBXAFgAWQBaAFsAXABdAF4AXwBgAGEAYgBjAGQAZQBmAGcAaABpAGoAawBsAG0AbgBvAHAAcQByAHMAdAB1AGMAAQAAAMIAAQAAAAAAAAAAAQAAAAEAAQABAAAAAAAAAAABAAD+gAABAAABAAAAAAAAAAEAAAABAAEAAAABAAAAAQAAAAAAAQAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE-Regular.ttf');
+      var font = 'LiberationSans-Regular.ttf';
+      jsPDFAPI.addFileToVFS(font, 'AAEAAAASAQAABAAgR0RFRgARAAhLAAAIVgAATjAAR1BPUwARACNcAAAOgAAAJrhHU1VCABgACDgAAADwAAAACE9TLzIBpAY/AAABPAAAAGhjbWFwABQAKAAAAXQAAABvZ2FzcAAQAAgAAAA+AAAAFGdseWYAE3aBAAACYAAABaBoZWFkApj6lQAAADcAAAA2aGhlYQFoA8QAAAA8AAAANGhtdHgE7wFAAAABHAAAA5Jsb2NhAEoBvAAAAkAAAAIwbWF4cABOAVUAAAA+AAAARm5hbWUAEhEbAAACUAAAAnJwb3N0AAEAAAQAAADMAAAACWFhbGMAAQAAAAEAAAABBgAAAAEAAQCgAAACAAoAogABACAAKwCrAAAEAAQAAAACAFgABAAAAAAABAAAAAQAAAAAAAABAAAAAQAAACAAAAAgAAAAIAAAADAAAAAwAAABQAAgAAAAAACgA0AAQAAQAAAAQAAAAXAAQAAAAAAAkAAMAAAAAAFAAEAEAAAAAAAEAABwEAAAAAAACAAkAAAAAAAwAIAAEAAAAAAAEAAAAAAEAAAAABQALAAEAAAAAAAIADgBGAAEAAAAAAAMAIAAHAAEAAAAAAAQADgB9AAEAAAAAAAUACwClAAEAAAAAAAYADgDIAAEAAAAAAAkAAMwAAAEAAAAAAAEABwAAAAEAAAAAAAIABwAAAAEAAAAAAAMABwAAAAEAAAAAAAUABwAAAAEAAAAAAAYABwAAAAEAAAAAAAEAAAAAABwALAEAAAUAFAAUCgACAAAABgAEAAAABQBcALkABQAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAQAAAAEAAgAAAAEACAABAAMAAAABAAUAAQAEAAAAAQAGAAEABwAAAAEACgABAAoAAAABAAAAAAEABQAIAAAAAgAQABQABAADAAIAQABCAEMAQQAFAAgACQAFAAYACAAJAAgAEAAIAAQACgAIAAsABwAMAAQABgAEAAkAJAAmACgAKQAqACsALAAtAC4ALwAwADEAMgAzADQANQA2ADcAOAA5ADoAOwA8AD0APgA/AEAAQQBCAEMARABFAEYARwBIAEkASgBLAEwATQBOAE8AUABRAFIAUwBUAFUAVgBXAFgAWQBaAFsAXABdAF4AXwBgAGEAYgBjAGQAZQBmAGcAaABpAGoAawBsAG0AbgBvAHAAcQByAHMAdAB1agMAAQAAAMIAAQAAAAAAAAAAAQAAAAEAAQABAAAAAAAAAAABAAD+gAABAAABAAAAAAAAAAEAAAABAAEAAAABAAAAAQAAAAAAAQAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE-Regular.ttf');
+      jsPDFAPI.addFont(font, 'LiberationSans', 'normal');
+    })(typeof jsPDF !== "undefined" ? window.jspdf.jsPDF.API : null);
+  </script>
+
+  <!-- Custom Styles -->
+  <style>
+    /* CSS Variables for Theming */
+    :root {
+      --bg-default: #f8fafc; --bg-soft: #ffffff; --bg-softer: #f1f5f9;
+      --text-default: #1e293b; --text-soft: #475569; --text-softer: #64748b;
+      --border-default: #e2e8f0; --border-soft: #f1f5f9;
+      --primary-color: #0ea5e9; --primary-hover: #0284c7; --primary-text: #ffffff;
+      --ring-color: #bae6fd;
+    }
+    html.dark {
+      --bg-default: #0f172a; --bg-soft: #1e293b; --bg-softer: #334155;
+      --text-default: #f1f5f9; --text-soft: #cbd5e1; --text-softer: #94a3b8;
+      --border-default: #334155; --border-soft: #475569;
+      --primary-color: #38bdf8; --primary-hover: #7dd3fc; --primary-text: #0f172a;
+      --ring-color: #0c4a6e;
+    }
+    body {
+      background-color: var(--bg-default);
+      color: var(--text-default);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .transition-all { transition: all 0.2s ease-in-out; }
+    .transition-colors { transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+
+    /* Custom Components */
+    .navlink { display: flex; align-items: center; width: 100%; gap: .75rem; padding: .625rem .75rem; border-radius: 0.75rem; font-weight: 500; color: var(--text-soft); }
+    .navlink:hover { background-color: var(--bg-softer); color: var(--text-default); }
+    .navlink.active { background-color: var(--primary-color); color: var(--primary-text); }
+    .navlink.active i { color: var(--primary-text); }
+
+    .card, .panel { background-color: var(--bg-soft); border: 1px solid var(--border-default); border-radius: 1rem; padding: 1.25rem; box-shadow: var(--shadow-soft); }
+    html.dark .card, html.dark .panel { box-shadow: none; }
+    
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: 1rem; color: var(--text-default); font-weight: 600; }
+    .panel-header-title { display: flex; align-items: center; gap: .5rem; }
+    
+    .input { width: 100%; padding: .6rem .85rem; border: 1px solid var(--border-default); background-color: var(--bg-soft); border-radius: .75rem; outline: none; }
+    .input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--ring-color); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; font-weight: 500; padding: .6rem 1rem; border-radius: .75rem; outline: none; }
+    .btn:focus-visible { box-shadow: 0 0 0 3px var(--ring-color); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-primary { background-color: var(--primary-color); color: var(--primary-text); }
+    .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+
+    .btn-secondary { background-color: var(--bg-soft); border: 1px solid var(--border-default); color: var(--text-default); }
+    .btn-secondary:hover:not(:disabled) { background-color: var(--bg-softer); }
+
+    .btn-sm { padding: .4rem .8rem; font-size: 0.875rem; }
+    .btn-sm i { width: 0.875rem; height: 0.875rem; }
+    
+    .calc-btn { position: absolute; right:.375rem; top:50%; transform:translateY(-50%); padding:.35rem; border-radius:.5rem; border:1px solid var(--border-default); background-color:var(--bg-soft); }
+    .calc-btn:hover { background-color: var(--bg-softer); }
+
+    /* Scrollbar */
+    .nice-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .nice-scroll::-webkit-scrollbar-track { background: transparent; }
+    .nice-scroll::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 999px; }
+    .nice-scroll:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+    
+    /* FullCalendar Customizations */
+    :root {
+        --fc-border-color: var(--border-default);
+        --fc-daygrid-event-dot-width: 8px;
+        --fc-list-event-dot-width: 10px;
+        --fc-event-bg-color: var(--primary-color);
+        --fc-event-border-color: var(--primary-color);
+        --fc-event-text-color: var(--primary-text);
+        --fc-today-bg-color: rgba(14, 165, 233, 0.1);
+    }
+    html.dark {
+        --fc-today-bg-color: rgba(56, 189, 248, 0.1);
+    }
+    .fc-event {
+        cursor: pointer;
+    }
+    .fc-toolbar-title {
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* Print Styles */
+    @media print {
+      body > *:not(#print-area) {
+        display: none !important;
+      }
+      #print-area {
+        display: block !important;
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+      }
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        font-family: sans-serif;
+      }
+      .print-table th, .print-table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+      }
+      .print-table th {
+        background-color: #f2f2f2;
+        color: #000;
+      }
+      .print-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body class="h-full">
+  <div id="app" class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-72 flex flex-col -translate-x-full md:translate-x-0 transition-transform duration-300 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
+      <div class="p-4 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="p-2.5 rounded-2xl bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400"><i data-lucide="layout-dashboard" class="w-6 h-6"></i></div>
+        <div><h1 class="font-bold text-lg text-slate-800 dark:text-slate-100">Paneli Kryesor</h1><p class="text-xs text-slate-500 dark:text-slate-400">Dashboard administrimi</p></div>
+      </div>
+      <nav class="p-3 space-y-1.5 flex-1 nice-scroll overflow-y-auto" id="menu">
+        <button data-route="dashboard" class="navlink active"><i data-lucide="home" class="w-5 h-5"></i><span>Paneli Kryesor</span></button>
+        <button data-route="shpenzimet" class="navlink"><i data-lucide="receipt" class="w-5 h-5"></i><span>Shpenzimet</span></button>
+        <button data-route="qarkullimi" class="navlink"><i data-lucide="trending-up" class="w-5 h-5"></i><span>Qarkullimi</span></button>
+        <button data-route="punetori" class="navlink"><i data-lucide="users" class="w-5 h-5"></i><span>Punëtori</span></button>
+        <button data-route="inventari" class="navlink"><i data-lucide="archive" class="w-5 h-5"></i><span>Inventari</span></button>
+        <button data-route="kalendari" class="navlink"><i data-lucide="calendar-days" class="w-5 h-5"></i><span>Kalendari</span></button>
+        <button data-route="raporte" class="navlink"><i data-lucide="bar-chart-3" class="w-5 h-5"></i><span>Raporte</span></button>
+        <button data-route="custom" class="navlink"><i data-lucide="plus-circle" class="w-5 h-5"></i><span>Kategori Custom</span></button>
+        <button data-route="settings" class="navlink"><i data-lucide="settings" class="w-5 h-5"></i><span>Parametra</span></button>
+      </nav>
+      <div class="mt-auto p-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800"><p>© 2025 – Paneli Kryesor</p></div>
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden" aria-hidden="true"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Header -->
+      <header class="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button id="toggleSidebar" class="md:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
+          <div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input id="globalSearch" type="text" placeholder="Kërko..." class="input pl-10 w-full" />
+            <div id="searchResults" class="absolute top-full left-0 right-0 mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl hidden max-h-64 overflow-auto z-30 text-sm"></div>
+          </div>
+
+          <button id="theme-toggle" class="btn btn-secondary !p-2.5">
+            <i id="theme-icon-light" data-lucide="sun" class="w-5 h-5 hidden"></i>
+            <i id="theme-icon-dark" data-lucide="moon" class="w-5 h-5 hidden"></i>
+          </button>
+          <button id="openCalculator" class="hidden md:inline-flex btn btn-secondary"><i data-lucide="calculator" class="w-4 h-4"></i><span>Kalkulator</span></button>
+          <button id="backupBtn" class="btn btn-secondary"><i data-lucide="download" class="w-4 h-4"></i><span>Backup</span></button>
+          <label class="btn btn-secondary cursor-pointer"><i data-lucide="upload" class="w-4 h-4"></i><span>Importo</span><input id="restoreInput" type="file" accept="application/json" class="hidden" /></label>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        <!-- DASHBOARD -->
+        <section id="route-dashboard" class="route">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-5">Përmbledhje</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="card"><div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 mb-2"><i data-lucide="trending-down" class="w-5 h-5"></i></div><p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Shpenzimet Totale</p><h3 id="dashShpenzime" class="text-2xl font-bold mt-1">€ 0.00</h3></div>
+                <div class="card"><div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-2"><i data-lucide="trending-up" class="w-5 h-5"></i></div><p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Qarkullimi Total</p><h3 id="dashQarkullimi" class="text-2xl font-bold mt-1">€ 0.00</h3></div>
+                <div class="card"><div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mb-2"><i data-lucide="users" class="w-5 h-5"></i></div><p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Numri i Punëtorëve</p><h3 id="dashPunetore" class="text-2xl font-bold mt-1">0</h3></div>
+                <div class="card"><div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 mb-2"><i data-lucide="scale" class="w-5 h-5"></i></div><p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Bilanci</p><h3 id="dashBilanci" class="text-2xl font-bold mt-1">€ 0.00</h3></div>
+            </div>
+        </section>
+
+        <!-- SHPENZIMET -->
+        <section id="route-shpenzimet" class="route hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Shpenzimet</h2>
+             <div class="flex items-center gap-2 flex-wrap">
+                <button id="printShpenzimeBtn" class="btn btn-secondary" title="Printo të zgjedhurat">
+                    <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i><span>Printo</span>
+                </button>
+                <button id="exportShpenzimePdfBtn" class="btn btn-secondary" title="Eksporto si PDF">
+                    <i data-lucide="file-type-2" class="w-4 h-4 text-red-500"></i><span>PDF</span>
+                </button>
+                <button id="exportShpenzimeXlsxBtn" class="btn btn-secondary" title="Eksporto si Excel">
+                    <i data-lucide="sheet" class="w-4 h-4 text-green-500"></i><span>Excel</span>
+                </button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-header-title"><i data-lucide="factory" class="w-5 h-5 text-sky-500"></i><span>Shto furnitor</span></div></div>
+              <div class="space-y-3">
+                <input id="furnitorEmri" type="text" placeholder="Emri i furnitorit" class="input" />
+                <button id="addFurnitorBtn" class="btn btn-primary w-full"><i data-lucide="plus" class="w-4 h-4"></i><span>Shto furnitor</span></button>
+                <div>
+                  <label class="text-xs text-slate-500 dark:text-slate-400">Furnitorët ekzistues</label>
+                  <div id="furnitoreListaContainer" class="mt-2 space-y-2 max-h-48 overflow-y-auto nice-scroll border border-slate-200 dark:border-slate-700 rounded-lg p-2"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="layout-list" class="w-5 h-5 text-sky-500"></i><span>Menaxho kategori</span></div></div>
+                <div class="space-y-3">
+                    <input id="shpenzimKategoriEmri" type="text" placeholder="Emri i kategorisë së re" class="input" />
+                    <button id="addShpenzimKategoriBtn" class="btn btn-primary w-full"><i data-lucide="plus" class="w-4 h-4"></i><span>Shto kategori</span></button>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400">Kategoritë ekzistuese</label>
+                        <div id="shpenzimKategoriListaContainer" class="mt-2 space-y-2 max-h-48 overflow-y-auto nice-scroll border border-slate-200 dark:border-slate-700 rounded-lg p-2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+              <div class="panel-header"><div class="panel-header-title"><i data-lucide="receipt" class="w-5 h-5 text-sky-500"></i><span>Shto shpenzim</span></div></div>
+              <div class="space-y-3">
+                <select id="shpFurnitor" class="input"></select>
+                <select id="shpKategoria" class="input"></select>
+                <div class="relative"><input id="shpShuma" type="number" step="0.01" placeholder="Shuma (€)" class="input pr-12" /><button data-target="shpShuma" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+                <input id="shpData" type="date" class="input" />
+                <input id="shpShenim" type="text" placeholder="Shënim (opsionale)" class="input" />
+                <button id="addShpenzimBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj shpenzimin</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title"><i data-lucide="list" class="w-5 h-5 text-sky-500"></i><span>Lista e shpenzimeve</span></div>
+              <div class="flex items-center gap-2 flex-wrap">
+                 <select id="shpenzimeFurnitorFilter" class="input !w-auto !py-1 text-sm" title="Filtro sipas furnitorit">
+                    <option value="">Të gjithë furnitorët</option>
+                </select>
+                <input id="shpenzimeDateFilter" type="date" class="input !w-auto !py-1 text-sm" title="Filtro sipas datës">
+                <button id="clearShpenzimeFilters" class="btn btn-secondary !p-1.5" title="Pastro filtrat"><i data-lucide="x" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="overflow-auto nice-scroll -mx-5">
+              <table class="w-full text-sm">
+                <thead class="text-left text-slate-500 dark:text-slate-400"><tr class="border-b border-slate-200 dark:border-slate-700"><th class="px-5 py-3 w-4"><input type="checkbox" id="selectAllShpenzime" class="rounded border-slate-300 dark:border-slate-600 dark:bg-slate-900 focus:ring-sky-500" /></th><th class="px-5 py-3">Furnitori</th><th class="px-5 py-3">Kategoria</th><th class="px-5 py-3">Shuma</th><th class="px-5 py-3">Data</th><th class="px-5 py-3">Shënimi</th><th class="px-5 py-3 text-right">Veprime</th></tr></thead>
+                <tbody id="tblShpenzime" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+              </table>
+            </div>
+            <div id="shpenzimePagination" class="flex items-center justify-between pt-4 mt-4 border-t border-slate-200 dark:border-slate-700"></div>
+          </div>
+        </section>
+
+        <!-- QARKULLIMI -->
+        <section id="route-qarkullimi" class="route hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Qarkullimi</h2>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="printQarkullimBtn" class="btn btn-secondary" title="Printo të zgjedhurat">
+                    <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i><span>Printo</span>
+                </button>
+                <button id="exportQarkullimPdfBtn" class="btn btn-secondary" title="Eksporto si PDF">
+                    <i data-lucide="file-type-2" class="w-4 h-4 text-red-500"></i><span>PDF</span>
+                </button>
+                <button id="exportQarkullimXlsxBtn" class="btn btn-secondary" title="Eksporto si Excel">
+                    <i data-lucide="sheet" class="w-4 h-4 text-green-500"></i><span>Excel</span>
+                </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-1 space-y-5">
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="layers" class="w-5 h-5 text-sky-500"></i><span>Menaxho nënkategori</span></div></div>
+                 <div class="space-y-3">
+                    <input id="nkEmri" type="text" placeholder="Emri i nënkategorisë" class="input" />
+                    <button id="addNenkategoriBtn" class="btn btn-primary w-full"><i data-lucide="plus" class="w-4 h-4"></i><span>Shto</span></button>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400">Nënkategoritë ekzistuese</label>
+                        <div id="nenkategoriListaContainer" class="mt-2 space-y-2 max-h-48 overflow-y-auto nice-scroll border border-slate-200 dark:border-slate-700 rounded-lg p-2"></div>
+                    </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="credit-card" class="w-5 h-5 text-sky-500"></i><span>Shto hyrje qarkullimi</span></div></div>
+                <div class="space-y-3">
+                  <select id="qNenkategoria" class="input"></select>
+                  <div class="relative"><input id="qShuma" type="number" step="0.01" placeholder="Shuma (€)" class="input pr-12" /><button data-target="qShuma" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+                  <input id="qData" type="date" class="input" />
+                  <input id="qPunetori" type="text" placeholder="Emri i punëtorit (opsionale)" class="input" />
+                  <input id="qShenim" type="text" placeholder="Shënim (opsionale)" class="input" />
+                  <button id="addQarkullimBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj</span></button>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-header-title"><i data-lucide="list" class="w-5 h-5 text-sky-500"></i><span>Lista e hyrjeve</span></div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                     <select id="qarkullimNenkategoriFilter" class="input !w-auto !py-1 text-sm" title="Filtro sipas nënkategorisë">
+                        <option value="">Të gjitha nënkategoritë</option>
+                    </select>
+                    <input id="qarkullimDateFilter" type="date" class="input !w-auto !py-1 text-sm" title="Filtro sipas datës">
+                    <button id="clearQarkullimFilters" class="btn btn-secondary !p-1.5" title="Pastro filtrat"><i data-lucide="x" class="w-4 h-4"></i></button>
+                  </div>
+                </div>
+                <div class="overflow-auto nice-scroll -mx-5">
+                  <table class="w-full text-sm">
+                    <thead class="text-left text-slate-500 dark:text-slate-400"><tr class="border-b border-slate-200 dark:border-slate-700"><th class="px-5 py-3 w-4"><input type="checkbox" id="selectAllQarkullim" class="rounded border-slate-300 dark:border-slate-600 dark:bg-slate-900 focus:ring-sky-500" /></th><th class="px-5 py-3">Nënkategoria</th><th class="px-5 py-3">Shuma</th><th class="px-5 py-3">Data</th><th class="px-5 py-3">Punëtori</th><th class="px-5 py-3">Shënimi</th><th class="px-5 py-3 text-right">Veprime</th></tr></thead>
+                    <tbody id="tblQarkullimi" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                  </table>
+                </div>
+                <div id="qarkullimiPagination" class="flex items-center justify-between pt-4 mt-4 border-t border-slate-200 dark:border-slate-700"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PUNËTORI -->
+        <section id="route-punetori" class="route hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Punëtori</h2>
+             <div class="flex items-center gap-2 flex-wrap">
+                <button id="openAddPunetorModalBtn" class="btn btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i><span>Shto Punëtor të Ri</span></button>
+                <button id="printPunetoriBtn" class="btn btn-secondary" title="Printo të zgjedhurat">
+                    <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i><span>Printo</span>
+                </button>
+                <button id="exportPunetoriPdfBtn" class="btn btn-secondary" title="Eksporto si PDF">
+                    <i data-lucide="file-type-2" class="w-4 h-4 text-red-500"></i><span>PDF</span>
+                </button>
+                <button id="exportPunetoriXlsxBtn" class="btn btn-secondary" title="Eksporto si Excel">
+                    <i data-lucide="sheet" class="w-4 h-4 text-green-500"></i><span>Excel</span>
+                </button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-header-title"><i data-lucide="users" class="w-5 h-5 text-sky-500"></i><span>Lista e punëtorëve</span></div>
+              <div class="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" id="selectAllPunetore" class="rounded border-slate-300 dark:border-slate-600 dark:bg-slate-900 focus:ring-sky-500" />
+                <label for="selectAllPunetore">Zgjidh të gjithë</label>
+              </div>
+            </div>
+            <div id="listPunetore" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+        </section>
+
+        <!-- KATEGORI CUSTOM -->
+        <section id="route-custom" class="route hidden">
+           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Kategori Custom</h2>
+             <div class="flex items-center gap-2 flex-wrap">
+                <button id="printCustomBtn" class="btn btn-secondary" title="Printo të zgjedhurat">
+                    <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i><span>Printo</span>
+                </button>
+                <button id="exportCustomPdfBtn" class="btn btn-secondary" title="Eksporto si PDF">
+                    <i data-lucide="file-type-2" class="w-4 h-4 text-red-500"></i><span>PDF</span>
+                </button>
+                <button id="exportCustomXlsxBtn" class="btn btn-secondary" title="Eksporto si Excel">
+                    <i data-lucide="sheet" class="w-4 h-4 text-green-500"></i><span>Excel</span>
+                </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-1 space-y-5">
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="archive" class="w-5 h-5 text-sky-500"></i><span>Shto Lloj Kategorie</span></div></div>
+                <div class="space-y-3">
+                  <input id="cKategoriEmri" type="text" placeholder="Emri i llojit (p.sh. Automjeti)" class="input" />
+                  <div class="space-y-2 pt-2">
+                    <label class="block text-sm font-medium">Zgjidh fushat:</label>
+                    <label class="flex items-center gap-2"><input id="cFushePershkrim" type="checkbox" class="rounded focus:ring-sky-500"><span>Përshkrim</span></label>
+                    <label class="flex items-center gap-2"><input id="cFusheShuma" type="checkbox" class="rounded focus:ring-sky-500"><span>Shuma (€)</span></label>
+                    <label class="flex items-center gap-2"><input id="cFusheData" type="checkbox" class="rounded focus:ring-sky-500"><span>Data</span></label>
+                    <label class="flex items-center gap-2"><input id="cFusheIkona" type="checkbox" class="rounded focus:ring-sky-500"><span>Ikona</span></label>
+                  </div>
+                  <button id="addCustomCategoryBtn" class="btn btn-primary w-full"><i data-lucide="plus" class="w-4 h-4"></i><span>Shto Lloj</span></button>
+                  <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400">Llojet ekzistuese</label>
+                    <div id="customKategoriListaContainer" class="mt-2 space-y-2 max-h-48 overflow-y-auto nice-scroll border border-slate-200 dark:border-slate-700 rounded-lg p-2"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="plus-circle" class="w-5 h-5 text-sky-500"></i><span>Shto Njësi të Re</span></div></div>
+                <div class="space-y-3">
+                  <select id="cKategoriSelect" class="input"></select>
+                  <input id="cTitull" type="text" placeholder="Titulli (p.sh. VW Golf 7)" class="input" />
+                  <div id="cPershkrimWrap" class="hidden"><input id="cPershkrim" type="text" placeholder="Përshkrim / Shënim" class="input" /></div>
+                  <div id="cShumaWrap" class="hidden relative"><input id="cShuma" type="number" step="0.01" placeholder="Shuma (€)" class="input pr-12" /><button data-target="cShuma" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+                  <div id="cDataWrap" class="hidden"><input id="cData" type="date" class="input" /></div>
+                  <div id="cIkonaWrap" class="hidden"><input id="cIkona" type="text" placeholder="Emri i ikonës (p.sh. car)" class="input" /></div>
+                  <button id="addCustomBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj Njësi</span></button>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-header-title"><i data-lucide="list" class="w-5 h-5 text-sky-500"></i><span>Lista e njësive</span></div>
+                  <div class="flex items-center gap-2 text-sm font-medium">
+                    <input type="checkbox" id="selectAllCustom" class="rounded border-slate-300 dark:border-slate-600 dark:bg-slate-900 focus:ring-sky-500" />
+                    <label for="selectAllCustom">Zgjidh të gjithë</label>
+                  </div>
+                </div>
+                <div id="listCustom" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INVENTARI -->
+        <section id="route-inventari" class="route hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Menaxhimi i Inventarit</h2>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-1">
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="plus" class="w-5 h-5 text-sky-500"></i><span>Shto/Përditëso Produkt</span></div></div>
+                <div class="space-y-3">
+                  <input type="hidden" id="invItemId">
+                  <input id="invProdukti" type="text" placeholder="Emri i produktit/materialit" class="input">
+                  <input id="invSasia" type="number" placeholder="Sasia" class="input">
+                  <input id="invShenim" type="text" placeholder="Shënim (opsionale)" class="input">
+                  <div class="flex gap-2">
+                    <button id="addInventarBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj</span></button>
+                    <button id="clearInventarForm" class="btn btn-secondary !p-2.5"><i data-lucide="x" class="w-5 h-5"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="panel">
+                <div class="panel-header"><div class="panel-header-title"><i data-lucide="list" class="w-5 h-5 text-sky-500"></i><span>Lista e Inventarit</span></div></div>
+                <div class="overflow-auto nice-scroll -mx-5">
+                  <table class="w-full text-sm">
+                    <thead class="text-left text-slate-500 dark:text-slate-400"><tr class="border-b border-slate-200 dark:border-slate-700"><th class="px-5 py-3">Produkti</th><th class="px-5 py-3">Sasia</th><th class="px-5 py-3">Shënimi</th><th class="px-5 py-3 text-right">Veprime</th></tr></thead>
+                    <tbody id="tblInventari" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- KALENDARI -->
+        <section id="route-kalendari" class="route hidden">
+           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+             <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Kalendari i Aktiviteteve</h2>
+           </div>
+           <div class="panel">
+             <div id="calendar"></div>
+           </div>
+        </section>
+
+        <!-- RAPORTE -->
+        <section id="route-raporte" class="route hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Raporte Grafike</h2>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="panel">
+              <h3 class="font-semibold mb-4">Qarkullimi vs. Shpenzimet (12 Muajt e Fundit)</h3>
+              <div class="h-80 relative">
+                <canvas id="bilanciChart"></canvas>
+              </div>
+            </div>
+            <div class="panel">
+              <h3 class="font-semibold mb-4">Përmbledhje e Shpenzimeve sipas Kategorisë</h2>
+              <div class="h-80 relative flex justify-center items-center">
+                <canvas id="shpenzimePieChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="route-settings" class="route hidden">
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-5">Parametrat</h2>
+          <div class="max-w-xl">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-header-title"><i data-lucide="folder" class="w-5 h-5 text-sky-500"></i><span>Folderi i të dhënave</span></div></div>
+              <p class="text-sm text-slate-600 dark:text-slate-300">Ndrysho vendndodhjen ku ruhen skedarët JSON me të dhënat e aplikacionit. Kjo kërkon rinisje të aplikacionit për të hyrë në fuqi.</p>
+              <button id="changeDataDir" class="btn btn-secondary mt-4"><i data-lucide="folder-open" class="w-4 h-4"></i><span>Zgjidh folder</span></button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Kalkulator -->
+  <div id="calculatorModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 grid place-items-center p-4">
+      <div id="calculatorModalBox" class="relative w-full max-w-xs bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-4 transform transition-all scale-95 opacity-0">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold">Kalkulator</h3>
+          <button id="closeCalculator" class="p-2 -m-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <input id="calcDisplay" type="text" class="input text-right text-2xl font-mono" placeholder="0" />
+        <div class="grid grid-cols-4 gap-2 mt-4 text-slate-700 dark:text-slate-200">
+          <button class="key btn !bg-slate-200 dark:!bg-slate-700">C</button><button class="key btn btn-secondary">(</button><button class="key btn btn-secondary">)</button><button class="key btn btn-secondary">÷</button>
+          <button class="key btn btn-secondary">7</button><button class="key btn btn-secondary">8</button><button class="key btn btn-secondary">9</button><button class="key btn btn-secondary">×</button>
+          <button class="key btn btn-secondary">4</button><button class="key btn btn-secondary">5</button><button class="key btn btn-secondary">6</button><button class="key btn btn-secondary">−</button>
+          <button class="key btn btn-secondary">1</button><button class="key btn btn-secondary">2</button><button class="key btn btn-secondary">3</button><button class="key btn btn-secondary">+</button>
+          <button class="key btn btn-secondary col-span-2">0</button><button class="key btn btn-secondary">.</button><button class="key equals btn btn-primary">=</button>
+        </div>
+        <button id="useCalcValue" class="btn btn-primary w-full mt-3"><i data-lucide="check" class="w-4 h-4"></i><span>Përdor vlerën</span></button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Njoftim -->
+  <div id="alertModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div id="alertOverlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-sm bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center transform transition-all scale-95 opacity-0" id="alertBox">
+      <div id="alertIcon" class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900/50 mb-4"></div>
+      <h3 id="alertTitle" class="text-lg font-medium text-slate-900 dark:text-slate-50"></h3>
+      <p id="alertMessage" class="mt-2 text-sm text-slate-600 dark:text-slate-300"></p>
+      <div class="mt-6">
+        <button id="closeAlert" class="btn btn-primary w-full">Në rregull</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Shto/Edito Punëtor -->
+  <div id="punetorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="punetorModalOverlay"></div>
+    <div class="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 transform transition-all scale-95 opacity-0" id="punetorModalBox">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="punetorModalTitle" class="text-lg font-semibold">Shto Punëtor të Ri</h3>
+        <button id="closePunetorModal" class="p-2 -m-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-4">
+        <input type="hidden" id="pEditOriginalName">
+        <div>
+          <label for="pEmriModal" class="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Emri i punëtorit</label>
+          <input id="pEmriModal" type="text" placeholder="Emri i plotë" class="input" />
+        </div>
+        <div>
+          <label for="pPushimTotaliModal" class="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Pushimi Vjetor (ditë)</label>
+          <input id="pPushimTotaliModal" type="number" step="1" placeholder="P.sh. 20" class="input" />
+        </div>
+      </div>
+      <div class="mt-6">
+        <button id="savePunetorBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj Punëtorin</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Regjistro Pagesë Mujore -->
+  <div id="paymentModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="paymentModalOverlay"></div>
+      <div class="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 transform transition-all scale-95 opacity-0" id="paymentModalBox">
+          <div class="flex items-center justify-between mb-4">
+              <h3 id="paymentModalTitle" class="text-lg font-semibold">Regjistro Pagesë Mujore</h3>
+              <button id="closePaymentModal" class="p-2 -m-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+          <input type="hidden" id="paymentPunetorId">
+          <div class="space-y-3">
+            <div class="relative"><input id="pRroga" type="number" step="0.01" placeholder="Rroga e marrë (€)" class="input pr-12" /><button data-target="pRroga" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+            <input id="pDataPageses" type="date" class="input" />
+            <div class="grid grid-cols-2 gap-3">
+              <div class="relative"><input id="pOreShtese" type="number" step="0.1" placeholder="Orë shtesë" class="input pr-12" /><button data-target="pOreShtese" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+              <div class="relative"><input id="pPagesaOreShtese" type="number" step="0.01" placeholder="Pagesa orë shtesë (€)" class="input pr-12" /><button data-target="pPagesaOreShtese" class="calc-btn" title="Kalkulator"><i data-lucide="calculator" class="w-4 h-4"></i></button></div>
+            </div>
+            <input id="pMungesa" type="number" step="1" placeholder="Mungesa (ditë)" class="input" />
+            <input id="pPushime" type="text" placeholder="Datat e pushimit (p.sh. 2025-08-15,...)" class="input" />
+            <input id="pPushimPerdoruraMujore" type="number" step="1" placeholder="Ditë pushimi të përdorura këtë muaj" class="input" />
+          </div>
+          <div class="mt-6">
+              <button id="savePaymentBtn" class="btn btn-primary w-full"><i data-lucide="save" class="w-4 h-4"></i><span>Ruaj Pagesën</span></button>
+          </div>
+      </div>
+  </div>
+  
+  <div id="print-area" class="hidden"></div>
+
+  <script type="module" src="./renderer.js"></script>
+  <script type="module" src="./dataService.js"></script>
+</body>
+</html>
+
