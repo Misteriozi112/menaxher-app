@@ -1,0 +1,47 @@
+{
+  "name": "paneli-kryesor",
+  "version": "1.0.6",
+  "description": "Dashboard administrimi i personalizuar",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "publish": "electron-builder --publish always"
+  },
+  "author": "Misteriozi112",
+  "license": "ISC",
+  "repository": "https://github.com/Misteriozi112/menaxher-app.git",
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "electron-log": "^5.1.2",
+    "electron-updater": "^6.1.8"
+  },
+  "build": {
+    "appId": "com.misteriozi112.panelikryesor",
+    "productName": "Paneli Kryesor",
+    "files": [
+      "**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Misteriozi112",
+      "repo": "menaxher-app"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
